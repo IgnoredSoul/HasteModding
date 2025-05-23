@@ -1,0 +1,12 @@
+[submodule "NPCLib"]
+	path = NPCLib
+	url = https://github.com/HasteModding/NPCLib
+[submodule "ZGHourglass"]
+	path = ZGHourglass
+	url = https://github.com/HasteModding/ZGHourglass
+[submodule "MoreLandings"]
+	path = MoreLandings
+	url = https://github.com/HasteModding/MoreLandings
+[submodule "HasteEffects"]
+	path = HasteEffects
+	url = https://github.com/HasteModding/HasteEffects
