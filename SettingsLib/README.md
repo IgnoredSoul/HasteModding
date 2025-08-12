@@ -1,24 +1,26 @@
-### **Internal SettingsLib**
+﻿### 💀 **Internal SettingsLib**
 
 > [!CAUTION]
-> This library is for internal use and built to match my own style of coding and preferences. Expect bugs, inconsistencies, or features that might not make sense outside of that context.
+> This library is for internal use and built to match my own style of coding and preferences.  
+> Expect bugs, inconsistencies, or features that might not make sense outside of that context.
 
 **Internal SettingsLib** (*formerly HastySettings*) is a modding utility that helps you create in-game settings inside the Haste settings menu.
 
-It is heavily inspired by [NaokoAF's HastyControls](https://github.com/NaokoAF/HastyControls/tree/master/Core/Settings) and my own modding workflows and game projects.
+It is heavily inspired by [NaokoAF's HastyControls](https://github.com/NaokoAF/HastyControls/tree/master/Core/Settings), my own modding workflows and other projects.
 
 > [!NOTE]
-> This is **not** a replacement for [HasteSettingLib](https://github.com/HasteModding/HasteSettingLib). This is a personal tool. That said, feel free to use it for your mods � just credit me in the workshop/github if you do.
+> This is **not** a replacement for [HasteSettingLib](https://github.com/HasteModding/HasteSettingLib). This is a personal tool.  
+> That said, feel free to use it for your mods — just credit me in your workshop/github if you do.
 
 Every constructor and options struct is fully documented via XML summaries. Intellisense will guide you.
 
-This library is intentionally lightweight and opinionated � it's meant to work with **my** projects first. But if you find it useful: cool. Just remember to **credit** if you use it.
+This library is intentionally lightweight and opinionated — it's meant to work with **my** projects first. But if you find it useful: cool. Just remember to **credit** if you use it.
 
 
 ---
 <!--------------------------------------------------------------------------------------->
 
-### **Features**
+### ⚙️ **Features**
 
 * **Int & Float Sliders**
 * **Buttons & Bool Toggles**
@@ -26,29 +28,27 @@ This library is intentionally lightweight and opinionated � it's meant to work w
 * **Collapsible Groups**
 
 > [!TIP]
-> You can nest sliders, buttons, bools, and enums **inside** a collapsible. **You cannot nest collapsibles.**
+> You can nest sliders, buttons, bools, and enums **inside** a collapsible.  
+**You cannot nest collapsibles.** Nest collapsibles is a mess in itself.
 
 ---
 <!--------------------------------------------------------------------------------------->
 
-### **Usage Overview**
+### 📝 **Usage Overview**
 
 All elements are instantiated via constructors.  
 Each one comes with optional settings structs like `IntOptions`, `ButtonOptions`, etc.
 
----
-<!--------------------------------------------------------------------------------------->
+<details><summary>Sliders</summary>
 
-### **Sliders**
-
-#### Int:
+### Int:
 
 ```cs
 new HastyInt(HastySetting config, string name, string description, IntOptions options = default);
 new HastyInt(HastyCollapsible collapsible, string name, string description, IntOptions options = default);
 ```
 
-#### IntOptions:
+### IntOptions:
 
 ```cs
 new IntOptions(
@@ -60,14 +60,14 @@ new IntOptions(
 );
 ```
 
-#### Float:
+### Float:
 
 ```cs
 new HastyFloat(HastySetting config, string name, string description, FloatOptions options = default);
 new HastyFloat(HastyCollapsible collapsible, string name, string description, FloatOptions options = default);
 ```
 
-#### FloatOptions:
+### FloatOptions:
 
 ```cs
 new FloatOptions(
@@ -82,17 +82,18 @@ new FloatOptions(
 
 ---
 <!--------------------------------------------------------------------------------------->
+</details>
 
-### **Dropdowns**
+<details><summary>Dropdowns / Enum</summary>
 
-#### Enum:
+### Enum:
 
 ```cs
 new HastyEnum<T>(HastySetting config, string name, string description, EnumOptions<T> options = default);
 new HastyEnum<T>(HastyCollapsible collapsible, string name, string description, EnumOptions<T> options = default);
 ```
 
-#### EnumOptions:
+### EnumOptions:
 
 ```cs
 new EnumOptions<T>(
@@ -105,17 +106,18 @@ new EnumOptions<T>(
 
 ---
 <!--------------------------------------------------------------------------------------->
+</details>
 
-### **Booleans**
+<details><summary>Booleans</summary>
 
-#### Bool:
+### Bool:
 
 ```cs
 new HastyBool(HastySetting config, string name, string description, BoolOptions options = default);
 new HastyBool(HastyCollapsible collapsible, string name, string description, BoolOptions options = default);
 ```
 
-#### BoolOptions:
+### BoolOptions:
 
 ```cs
 new BoolOptions(
@@ -128,17 +130,18 @@ new BoolOptions(
 
 ---
 <!--------------------------------------------------------------------------------------->
+</details>
 
-### **Buttons**
+<details><summary>Buttons</summary>
 
-#### Button:
+### Button:
 
 ```cs
 new HastyButton(HastySetting config, string name, string description, ButtonOptions options = default);
 new HastyButton(HastyCollapsible collapsible, string name, string description, ButtonOptions options = default);
 ```
 
-#### ButtonOptions:
+### ButtonOptions:
 
 ```cs
 new ButtonOptions(
@@ -149,6 +152,9 @@ new ButtonOptions(
 
 ---
 <!--------------------------------------------------------------------------------------->
+</details>
+
+<details><summary>Collapsible Groups</summary>
 
 ### **Collapsible Groups**
 
@@ -156,19 +162,20 @@ new ButtonOptions(
 new HastyCollapsible(HastySetting config, string name, string description);
 ```
 
-Use collapsibles to group related settings visually. You can�t nest collapsibles within collapsibles.
+Use collapsibles to group related settings visually. You can’t nest collapsibles within collapsibles.
+</details>
 
 ---
 <!--------------------------------------------------------------------------------------->
 
-### **Final Words**
+### 🗣️ **Final Words**
 ```
-______   ___   _____  _   _ 
-| ___ \ / _ \ |_   _|| \ | |
-| |_/ // /_\ \  | |  |  \| |
-|  __/ |  _  |  | |  | . ` |
-| |    | | | | _| |_ | |\  |
-\_|    \_| |_/ \___/ \_| \_/
+______     ___     _____    _   _ 
+| ___ \   / _ \   |_   _|  | \ | |
+| |_/ /  / /_\ \    | |    |  \| |
+|  __/   |  _  |    | |    | . ` |
+| |      | | | |   _| |_   | |\  |
+\_|      \_| |_/   \___/   \_| \_/
 ```
 
 ---
@@ -178,5 +185,11 @@ ______   ___   _____  _   _
 <h3>Anyway, here's the update journey...</h3></br>
 </br>
 
+# Updates
+
+### Update 6.9.421??
+- Fixed shit.
+- Removed harmony patches in favour of using `On`.
+
 ### Update 6.9.420
-- yep cock
+- Literally there is none. lol.

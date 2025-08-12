@@ -57,10 +57,10 @@ public class HastyPatch
 				{
 					if (c.HastyData is { } childData) // Wacky bullshit I pulled out my ass
 					{
-						childData.LayoutElement.ignoreLayout = collapsed;
-						childData.CanvasGroup.blocksRaycasts = !collapsed;
-						childData.CanvasGroup.alpha = 0f;
-						if (childData.GameObject.TryGetComponent<SettingsUICell>(out var cell))
+						childData.LayoutElement!.ignoreLayout = collapsed;
+						childData.CanvasGroup!.blocksRaycasts = !collapsed;
+						childData.CanvasGroup!.alpha = 0f;
+						if (childData.GameObject!.TryGetComponent<SettingsUICell>(out var cell))
 						{ cell.enabled = !collapsed; }
 						childData.GameObject.SetActive(!collapsed);
 					}

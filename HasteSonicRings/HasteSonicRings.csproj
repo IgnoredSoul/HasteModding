@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+
 		<!-- Specifies that your project targets .NET Standard 2.1,
 		which is a specification for cross-platform compatibility across .NET runtimes (like .NET Core, Mono, Xamarin).-->
 		<TargetFramework>netstandard2.1</TargetFramework>
@@ -32,13 +33,15 @@
 		<!-- Tells the compiler not to generate any debugging information (i.e., no .pdb files). -->
 		<DebugType>none</DebugType>
 
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Compile Include="..\Informer\*.cs"><Link>Informer\%(Filename)%(Extension)</Link></Compile>
+		<Compile Include="..\NPCLib\*.cs"><Link>NPCLib\%(Filename)%(Extension)</Link></Compile>
+		<Compile Include="..\SettingsLib\*.cs"><Link>SettingsLib\%(Filename)%(Extension)</Link></Compile>
+		<EmbeddedResource Include="Assets\sonicrings" />
 		<Reference Include="$(HasteDir)\..\..\workshop\content\1796470\3408901301\0Harmony.dll" Private="false" />
 		<Reference Include="$(HasteDir)\Haste_Data\Managed\*.dll" Private="false" Publicize="true" />
 	</ItemGroup>
+
 </Project>
