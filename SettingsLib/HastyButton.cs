@@ -1,5 +1,4 @@
-﻿using TMPro;
-using UnityEngine.Localization;
+﻿using UnityEngine.Localization;
 using Zorro.Settings;
 
 /// <summary>
@@ -29,7 +28,7 @@ public class HastyButton : ButtonSetting, IHastySetting
 	private readonly LocalizedString _displayName = null!;
 	private readonly ButtonOptions _options = default;
 
-	private TextMeshProUGUI? _valueText = null!;
+	private TMPro.TextMeshProUGUI? _valueText = null!;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="HastyButton"/> class.
@@ -42,14 +41,14 @@ public class HastyButton : ButtonSetting, IHastySetting
 	/// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or empty.</exception>
 	public HastyButton(HastySetting config, string name, string description, ButtonOptions options = default)
 	{
-		if (config == null)
-		{ throw new ArgumentNullException(nameof(config), "No config was provided. Unable to create \"HastyButton\"."); }
-		if (string.IsNullOrEmpty(name))
-		{ throw new ArgumentNullException(nameof(name), $"{config.AsmPFX} Name cannot be null or empty."); }
-		if (string.IsNullOrEmpty(description))
-		{ UnityEngine.Debug.LogWarning($"{config.AsmPFX} No description was given to: \"{name}\" of type: HastyButton. This may cause errors."); }
+        if (config == null)
+        { Informer.Inform(new ArgumentNullException(nameof(config), $"No config was provided. Unable to create \"HastyButton\"."), InformType.Error); return; }
+        if (string.IsNullOrEmpty(name))
+        { Informer.Inform(new ArgumentException($"No name was given to \"HastyButton\". Either it's empty or null.", nameof(name)), InformType.Error); return; }
+        if (string.IsNullOrEmpty(description))
+        { Informer.Inform($"No description was given to: \"{name}\" of type: \"HastyButton\". This may cause errors."); }
 
-		_config = config;
+        _config = config;
 		_displayName = _config.CreateDisplayName(name, description);
 		_options = options;
 
@@ -90,7 +89,7 @@ public class HastyButton : ButtonSetting, IHastySetting
 	/// <summary>
 	/// Gets the TextMeshProUGUI used to display the value.
 	/// </summary>
-	private TextMeshProUGUI? ValueText
+	private TMPro.TextMeshProUGUI? ValueText
 	{
 		get
 		{
@@ -100,7 +99,7 @@ public class HastyButton : ButtonSetting, IHastySetting
 				{ throw new NullReferenceException("HastyData is not set. Cannot access ValueText."); }
 				if (HastyData.SettingsUICell == null)
 				{ throw new NullReferenceException("SettingsUICell is not set in HastyData. Cannot access ValueText."); }
-				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/BUTTON INPUT(Clone)/EscapeMenuButton/Text")?.GetComponent<TextMeshProUGUI>() ?? null!;
+				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/BUTTON INPUT(Clone)/EscapeMenuButton/Text")?.GetComponent<TMPro.TextMeshProUGUI>() ?? null!;
 			}
 			return _valueText;
 		}

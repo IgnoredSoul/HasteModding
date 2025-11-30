@@ -1,5 +1,4 @@
-﻿using TMPro;
-using UnityEngine.Localization;
+﻿using UnityEngine.Localization;
 using Zorro.Settings;
 
 /// <summary>
@@ -41,7 +40,7 @@ public class HastyEnum<T> : EnumSetting<T>, IEnumSetting, IHastySetting where T 
 	private readonly EnumOptions<T> _options = default;
 
 	private ISettingsSaveLoad _saveLoad = null!;
-	private TextMeshProUGUI _valueText = null!;
+	private TMPro.TextMeshProUGUI _valueText = null!;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="HastyEnum{T}"/> class.
@@ -54,14 +53,14 @@ public class HastyEnum<T> : EnumSetting<T>, IEnumSetting, IHastySetting where T 
 	/// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or empty.</exception>
 	public HastyEnum(HastySetting config, string name, string description, EnumOptions<T> options = default)
 	{
-		if (config == null)
-		{ throw new ArgumentNullException(nameof(config), "No config was provided. Unable to create \"HastyEnum\"."); }
-		if (string.IsNullOrEmpty(name))
-		{ throw new ArgumentNullException(nameof(name), $"{config.AsmPFX} Name cannot be null or empty."); }
-		if (string.IsNullOrEmpty(description))
-		{ UnityEngine.Debug.LogWarning($"{config.AsmPFX} No description was given to: \"{name}\" of type: HastyEnum. This may cause errors."); }
+        if (config == null)
+        { Informer.Inform(new ArgumentNullException(nameof(config), $"No config was provided. Unable to create \"HastyEnum\"."), InformType.Error); return; }
+        if (string.IsNullOrEmpty(name))
+        { Informer.Inform(new ArgumentException($"No name was given to \"HastyEnum\". Either it's empty or null.", nameof(name)), InformType.Error); return; }
+        if (string.IsNullOrEmpty(description))
+        { Informer.Inform($"No description was given to: \"{name}\" of type: \"HastyEnum\". This may cause errors."); }
 
-		_choices = _options.Choices != null ? [.. _options.Choices] : Enum.GetNames(typeof(T)).ToList();
+        _choices = _options.Choices != null ? [.. _options.Choices] : Enum.GetNames(typeof(T)).ToList();
 		_config = config;
 		_displayName = _config.CreateDisplayName(name, description);
 		_options = options;
@@ -103,7 +102,7 @@ public class HastyEnum<T> : EnumSetting<T>, IEnumSetting, IHastySetting where T 
 	/// <summary>
 	/// Gets the TextMeshProUGUI used to display the value.
 	/// </summary>
-	private TextMeshProUGUI? ValueText
+	private TMPro.TextMeshProUGUI? ValueText
 	{
 		get
 		{
@@ -113,7 +112,7 @@ public class HastyEnum<T> : EnumSetting<T>, IEnumSetting, IHastySetting where T 
 				{ throw new NullReferenceException("HastyData is not set. Cannot access ValueText."); }
 				if (HastyData.SettingsUICell == null)
 				{ throw new NullReferenceException("SettingsUICell is not set in HastyData. Cannot access ValueText."); }
-				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/ENUM DROPDOWN(Clone)/Dropdown/Label")?.GetComponent<TextMeshProUGUI>() ?? null!;
+				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/ENUM DROPDOWN(Clone)/Dropdown/Label")?.GetComponent<TMPro.TextMeshProUGUI>() ?? null!;
 			}
 			return _valueText;
 		}

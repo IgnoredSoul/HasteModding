@@ -1,20 +1,14 @@
-﻿using HarmonyLib;
-using Landfall.Haste;
+﻿using Landfall.Haste;
 using On.Zorro.Settings.UI;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.UI;
-using UnityEngine;
 using Zorro.Settings;
 
-/// <summary>
-/// Provides a mod-specific settings handler for registering and managing custom settings.
-/// </summary>
 public class HastySetting
 {
-	/// <summary>
-	/// Maps <see cref="HastyData"/> instances to their corresponding <see cref="IHastySetting"/> instances.
-	/// </summary>
 	private static readonly ConditionalWeakTable<HastyData, IHastySetting> SettingsMap = new();
 
 	/// <summary>
@@ -29,7 +23,7 @@ public class HastySetting
 
 		ModName = modName;
 
-		On.HasteSettingsHandler.RegisterPage += HasteSettingsHandler_RegisterPage;
+        On.HasteSettingsHandler.RegisterPage += HasteSettingsHandler_RegisterPage;
 		On.SettingsUICell.Setup += SettingsUICell_Setup;
 		ButtonSettingUI.Setup += ButtonSettingUI_Setup;
 	}
@@ -39,33 +33,7 @@ public class HastySetting
 	/// </summary>
 	public event Action OnConfig = null!;
 
-	/// <summary>
-	/// Mods prefix for logging
-	/// </summary>
-	public string AsmPFX => $"[{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}]:";
-
-	/// <summary>
-	/// Gets the name of the mod associated with this settings handler.
-	/// </summary>
 	public string ModName { get; } = "";
-
-	/// <summary>
-	/// Field reference to the private <c>m_canvasGroup</c> field of <see cref="SettingsUICell"/>.
-	/// </summary>
-	private static AccessTools.FieldRef<SettingsUICell, CanvasGroup> CanvasGroupRef
-		=> AccessTools.FieldRefAccess<SettingsUICell, CanvasGroup>("m_canvasGroup");
-
-	/// <summary>
-	/// Gets a reference to the list of settings managed by the settings handler.
-	/// </summary>
-	private static AccessTools.FieldRef<HasteSettingsHandler, List<Setting>> SettingsRef
-		=> AccessTools.FieldRefAccess<HasteSettingsHandler, List<Setting>>("settings");
-
-	/// <summary>
-	/// Gets a reference to the settings save/load handler.
-	/// </summary>
-	private static AccessTools.FieldRef<HasteSettingsHandler, ISettingsSaveLoad> SettingsSaveLoadRef
-		=> AccessTools.FieldRefAccess<HasteSettingsHandler, ISettingsSaveLoad>("_settingsSaveLoad");
 
 	/// <summary>
 	/// Adds a new setting to the handler, loads its value, and applies it.
@@ -74,9 +42,16 @@ public class HastySetting
 	/// <param name="setting">The setting instance to add.</param>
 	public void Add<T>(T setting) where T : Setting
 	{
-		HasteSettingsHandler handler = GameHandler.Instance.SettingsHandler;
-		SettingsRef(handler).Add(setting);
-		setting.Load(SettingsSaveLoadRef(handler));
+        HasteSettingsHandler handler = GameHandler.Instance.SettingsHandler;
+
+        FieldInfo settingsField = typeof(HasteSettingsHandler).GetField("settings", BindingFlags.Instance | BindingFlags.NonPublic);
+        if (settingsField == null) { throw new MissingFieldException("HasteSettingsHandler", "settings"); }
+        ((List<Setting>)settingsField.GetValue(handler)).Add(setting);
+
+        FieldInfo loadField = typeof(HasteSettingsHandler).GetField("_settingsSaveLoad", BindingFlags.Instance | BindingFlags.NonPublic);
+        if (loadField == null) { throw new MissingFieldException("HasteSettingsHandler", "_settingsSaveLoad"); }
+        setting.Load((ISettingsSaveLoad)loadField.GetValue(handler));
+
 		setting.ApplyValue();
 	}
 
@@ -91,15 +66,6 @@ public class HastySetting
 	internal LocalizedString CreateDisplayName(string name, string description = "")
 		=> new UnlocalizedString(string.IsNullOrEmpty(description) ? name : $"{name}\n<size=60%><alpha=#50>{description}");
 
-	/// <summary>
-	/// Ppatch for <see cref="ButtonSettingUI.Setup"/>.
-	/// Sets up Hasty-specific UI and data for button settings.
-	/// </summary>
-	/// <param name="orig"></param>
-	/// <param name="self"></param>
-	/// <param name="setting"></param>
-	/// <param name="handler"></param>
-	/// <exception cref="Exception"></exception>
 	private void ButtonSettingUI_Setup(ButtonSettingUI.orig_Setup orig, Zorro.Settings.UI.ButtonSettingUI self, Setting setting, ISettingHandler handler)
 	{
 		orig(self, setting, handler);
@@ -119,24 +85,21 @@ public class HastySetting
 				collapsible.Clicked += collapsed =>
 				{
 					self.Label.text = collapsible.Collapsed ? "► Expand" : "▼ Collapse";
-					foreach (var c in collapsible.Content)
+                    foreach (IHastySetting c in collapsible.Content)
 					{
 						if (c.HastyData is { } childData) // Wacky bullshit I pulled out my ass
 						{
 							if (childData.LayoutElement == null)
-							{ throw new Exception($"{AsmPFX} LayoutElement is null for {c.GetDisplayName()}"); }
+							{ throw new Exception($"LayoutElement is null for {c.GetDisplayName()}"); }
 							if (childData.CanvasGroup == null)
-							{ throw new Exception($"{AsmPFX} CanvasGroup is null for {c.GetDisplayName()}"); }
+							{ throw new Exception($"CanvasGroup is null for {c.GetDisplayName()}"); }
 							if (childData.GameObject == null)
-							{ throw new Exception($"{AsmPFX} GameObject is null for {c.GetDisplayName()}"); }
+							{ throw new Exception($"Object is null for {c.GetDisplayName()}"); }
 
 							childData.LayoutElement.ignoreLayout = collapsed;
 							childData.CanvasGroup.blocksRaycasts = !collapsed;
 							childData.CanvasGroup.alpha = 0f;
-							if (childData.GameObject.TryGetComponent<SettingsUICell>(out var cell))
-							{
-								cell.enabled = !collapsed;
-							}
+                            if (childData.GameObject.TryGetComponent(out SettingsUICell cell)) { cell.enabled = !collapsed; }
 
 							childData.GameObject.SetActive(!collapsed);
 						}
@@ -148,56 +111,32 @@ public class HastySetting
 		}
 	}
 
-	/// <summary>
-	/// Retrieves the <see cref="HastyData"/> instance associated with the specified <see cref="IHastySetting"/> by UUID.
-	/// </summary>
-	/// <param name="setting">The <see cref="IHastySetting"/> to look up.</param>
-	/// <returns>The associated <see cref="HastyData"/>, or <c>null</c> if not found.</returns>
 	private HastyData? GetHDByHS(IHastySetting setting)
 	{
-		try
-		{
-			return SettingsMap.FirstOrDefault(kvp => kvp.Value.UUID == setting.UUID).Key;
-		}
-		catch (Exception ex)
-		{
-			UnityEngine.Debug.LogError($"{AsmPFX} Error in GetHDByHastySetting: {ex}");
-		}
+		try { return SettingsMap.FirstOrDefault(kvp => kvp.Value.UUID == setting.UUID).Key; }
+		catch (Exception ex) { Informer.Inform(ex); }
 		return null;
 	}
 
-	/// <summary>
-	/// Patch for <see cref="HasteSettingsHandler.RegisterPage"/> method.
-	/// Tells the handler to invoke the <see cref="OnConfig"/> event after registering the page.
-	/// </summary>
-	/// <param name="orig"></param>
-	/// <param name="self"></param>
 	private void HasteSettingsHandler_RegisterPage(On.HasteSettingsHandler.orig_RegisterPage orig, HasteSettingsHandler self)
 	{
 		orig(self);
 		OnConfig?.Invoke();
 	}
 
-	/// <summary>
-	/// Associates a <see cref="HastyData"/> instance with an <see cref="IHastySetting"/> in the settings map.
-	/// </summary>
-	/// <param name="hastyData">The <see cref="HastyData"/> instance.</param>
-	/// <param name="setting">The <see cref="IHastySetting"/> to associate.</param>
 	private void SetHDForHS(HastyData hastyData, IHastySetting setting)
 	{
 		try
 		{
-			if (SettingsMap.TryGetValue(hastyData, out _))
-			{
-				SettingsMap.Remove(hastyData);
-			}
+			// If the hastyData exists, remove it
+			if (SettingsMap.TryGetValue(hastyData, out _)) { SettingsMap.Remove(hastyData); }
 
 			setting.HastyData = hastyData;
 			SettingsMap.Add(hastyData, setting);
 		}
 		catch (Exception ex)
 		{
-			UnityEngine.Debug.LogError($"Error in SetHDForHastySetting: {ex}");
+			Informer.Inform(ex);
 		}
 	}
 
@@ -210,47 +149,47 @@ public class HastySetting
 	/// <param name="setting"></param>
 	private void SettingsUICell_Setup(On.SettingsUICell.orig_Setup orig, SettingsUICell self, Zorro.Settings.Setting setting)
 	{
+		// Do original stuff
 		orig(self, setting);
+
+		// If the canvas group has not been obtained, get it.
+        FieldInfo field = typeof(SettingsUICell).GetField("m_canvasGroup", BindingFlags.Instance | BindingFlags.NonPublic);
+        if (field == null) { throw new MissingFieldException("SettingsUICell", "m_canvasGroup"); }
+
+		// Then if the setting is of this mod;
 		if (setting is IHastySetting hastySetting && setting is IExposedSetting exposedSetting)
 		{
 			HastyData hastyData = GetHDByHS(hastySetting) ?? new();
 
+			// Assign fields
 			hastyData.HastySetting = hastySetting;
 			hastyData.SettingsUICell = self;
-			hastyData.CanvasGroup = CanvasGroupRef.Invoke(self);
+			hastyData.CanvasGroup = (CanvasGroup)field.GetValue(self);
 			hastyData.GameObject = self.gameObject;
 			hastyData.LayoutElement = self.gameObject.AddComponent<LayoutElement>();
 			hastyData.ExposedSetting = exposedSetting;
 			hastyData.HastyCollapsible = setting as HastyCollapsible ?? null!;
 
+			// If the setting is a child of a collapsible
 			if (hastySetting.ParentCollapsible != null)
 			{
-				var collapsed = hastySetting.ParentCollapsible.Collapsed;
+                bool collapsed = hastySetting.ParentCollapsible.Collapsed;
 				hastyData.LayoutElement.ignoreLayout = collapsed;
 				hastyData.CanvasGroup.blocksRaycasts = !collapsed;
 				hastyData.CanvasGroup.alpha = 0f;
-				if (hastyData.GameObject.TryGetComponent<SettingsUICell>(out var cell))
-				{
-					cell.enabled = !collapsed;
-				}
-
-				if (hastyData.GameObject.transform.GetChild(0).TryGetComponent(out Image image))
-				{
-					image.color = new Color(0.0161f, 0.0576f, 0.0615f, 0.6157f);
-				}
+                if (hastyData.GameObject.TryGetComponent(out SettingsUICell cell)) { cell.enabled = !collapsed; }
+				if (hastyData.GameObject.transform.GetChild(0).TryGetComponent(out Image image)) { image.color = new Color(0.0161f, 0.0576f, 0.0615f, 0.6157f); }
 
 				hastyData.GameObject.SetActive(!collapsed);
 			}
 
+			// If the float slider should use whole numbers
 			if (hastySetting is HastyFloat hastyFloat && hastyFloat.IsWhole)
 			{
-				var slider = hastyData.GameObject.GetComponentInChildren<Slider>();
-				if (slider != null)
-				{
-					slider.wholeNumbers = true;
-				}
+                Slider slider = hastyData.GameObject.GetComponentInChildren<Slider>();
+				if (slider != null) { slider.wholeNumbers = true; }
 
-				hastyFloat.ApplyValue();
+					hastyFloat.ApplyValue();
 			}
 
 			SetHDForHS(hastyData, hastySetting);

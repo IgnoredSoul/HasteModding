@@ -1,5 +1,4 @@
-﻿using TMPro;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using UnityEngine.Localization;
 using Zorro.Settings;
 
@@ -51,7 +50,7 @@ public class HastyFloat : FloatSetting, IHastySetting
 	private readonly FloatOptions _options = default;
 
 	private ISettingsSaveLoad _saveLoad = null!;
-	private TMP_InputField _valueText = null!;
+	private TMPro.TMP_InputField _valueText = null!;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="HastyFloat"/> class.
@@ -64,14 +63,14 @@ public class HastyFloat : FloatSetting, IHastySetting
 	/// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or empty.</exception>
 	public HastyFloat(HastySetting config, string name, string description, FloatOptions options = default)
 	{
-		if (config == null)
-		{ throw new ArgumentNullException(nameof(config), "No config was provided. Unable to create \"HastyFloat\"."); }
-		if (string.IsNullOrEmpty(name))
-		{ throw new ArgumentNullException(nameof(name), $"{config.AsmPFX} Name cannot be null or empty."); }
-		if (string.IsNullOrEmpty(description))
-		{ UnityEngine.Debug.LogWarning($"{config.AsmPFX} No description was given to: \"{name}\" of type: HastyFloat. This may cause errors."); }
+        if (config == null)
+        { Informer.Inform(new ArgumentNullException(nameof(config), $"No config was provided. Unable to create \"HastyFloat\"."), InformType.Error); return; }
+        if (string.IsNullOrEmpty(name))
+        { Informer.Inform(new ArgumentException($"No name was given to \"HastyFloat\". Either it's empty or null.", nameof(name)), InformType.Error); return; }
+        if (string.IsNullOrEmpty(description))
+        { Informer.Inform($"No description was given to: \"{name}\" of type: \"HastyFloat\". This may cause errors."); }
 
-		_config = config;
+        _config = config;
 		_options = options;
 		_displayName = config.CreateDisplayName(name, description);
 
@@ -117,7 +116,7 @@ public class HastyFloat : FloatSetting, IHastySetting
 	/// <summary>
 	/// Gets the TMP_InputField used to display the value.
 	/// </summary>
-	private TMP_InputField? ValueText
+	private TMPro.TMP_InputField? ValueText
 	{
 		get
 		{
@@ -127,7 +126,7 @@ public class HastyFloat : FloatSetting, IHastySetting
 				{ throw new NullReferenceException("HastyData is not set. Cannot access ValueText."); }
 				if (HastyData.SettingsUICell == null)
 				{ throw new NullReferenceException("SettingsUICell is not set in HastyData. Cannot access ValueText."); }
-				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/FLOAT INPUT(Clone)/InputField (TMP)")?.GetComponent<TMP_InputField>() ?? null!;
+				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/FLOAT INPUT(Clone)/InputField (TMP)")?.GetComponent<TMPro.TMP_InputField>() ?? null!;
 			}
 			return _valueText;
 		}

@@ -19,14 +19,14 @@ public class HastyCollapsible : ButtonSetting, IHastySetting, IExposedSetting
 	/// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or empty.</exception>
 	public HastyCollapsible(HastySetting config, string name, string description)
 	{
-		if (config == null)
-		{ throw new ArgumentNullException(nameof(config), $"No config was provided. Unable to create \"HastyCollapsible\"."); }
-		if (string.IsNullOrEmpty(name))
-		{ throw new ArgumentException($"{config.AsmPFX} No name was given to the collapsible group. Either it's empty or null.", nameof(name)); }
-		if (string.IsNullOrEmpty(description))
-		{ UnityEngine.Debug.LogWarning($"{config.AsmPFX} No description was given to: \"{name}\" of type: HastyCollapsible. This may cause errors."); }
+        if (config == null)
+        { Informer.Inform(new ArgumentNullException(nameof(config), $"No config was provided. Unable to create \"HastyCollapsible\"."), InformType.Error); return; }
+        if (string.IsNullOrEmpty(name))
+        { Informer.Inform(new ArgumentException($"No name was given to \"HastyCollapsible\". Either it's empty or null.", nameof(name)), InformType.Error); return; }
+        if (string.IsNullOrEmpty(description))
+        { Informer.Inform($"No description was given to: \"{name}\" of type: \"HastyCollapsible\". This may cause errors."); }
 
-		_config = config;
+        _config = config;
 		_displayName = _config.CreateDisplayName(name, description);
 
 		Key = $"{config.ModName}.{name}";

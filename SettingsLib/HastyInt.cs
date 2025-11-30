@@ -1,5 +1,4 @@
-﻿using TMPro;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using UnityEngine.Localization;
 using Zorro.Settings;
 
@@ -44,7 +43,7 @@ public class HastyInt : IntSetting, IHastySetting
 	private readonly IntOptions _options = default;
 
 	private ISettingsSaveLoad _saveLoad = null!;
-	private TMP_InputField? _valueText = null!;
+	private TMPro.TMP_InputField? _valueText = null!;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="HastyInt"/> class.
@@ -57,14 +56,14 @@ public class HastyInt : IntSetting, IHastySetting
 	/// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or empty.</exception>
 	public HastyInt(HastySetting config, string name, string description, IntOptions options = default)
 	{
-		if (config == null)
-		{ throw new ArgumentNullException(nameof(config), $"No config was provided. Unable to create \"HastyInt\"."); }
-		if (string.IsNullOrEmpty(name))
-		{ throw new ArgumentException($"{config.AsmPFX} No name was given to the setting. Either it's empty or null.", nameof(name)); }
-		if (string.IsNullOrEmpty(description))
-		{ UnityEngine.Debug.LogWarning($"{config.AsmPFX} No description was given to: \"{name}\" of type: HastyInt. This may cause errors."); }
+        if (config == null)
+        { Informer.Inform(new ArgumentNullException(nameof(config), $"No config was provided. Unable to create \"HastyInt\"."), InformType.Error); return; }
+        if (string.IsNullOrEmpty(name))
+        { Informer.Inform(new ArgumentException($"No name was given to \"HastyInt\". Either it's empty or null.", nameof(name)), InformType.Error); return; }
+        if (string.IsNullOrEmpty(description))
+        { Informer.Inform($"No description was given to: \"{name}\" of type: \"HastyInt\". This may cause errors."); }
 
-		_config = config;
+        _config = config;
 		_displayName = _config.CreateDisplayName(name, description);
 		_options = options;
 
@@ -105,7 +104,7 @@ public class HastyInt : IntSetting, IHastySetting
 	/// <summary>
 	/// Gets the TMP_InputField used to display the value.
 	/// </summary>
-	private TMP_InputField? ValueText
+	private TMPro.TMP_InputField? ValueText
 	{
 		get
 		{
@@ -115,7 +114,7 @@ public class HastyInt : IntSetting, IHastySetting
 				{ throw new NullReferenceException("HastyData is not set. Cannot access ValueText."); }
 				if (HastyData.SettingsUICell == null)
 				{ throw new NullReferenceException("SettingsUICell is not set in HastyData. Cannot access ValueText."); }
-				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/INt INPUT(Clone)/InputField (TMP)")?.GetComponent<TMP_InputField>() ?? null!;
+				_valueText = HastyData.SettingsUICell.transform.Find("InputParent/INt INPUT(Clone)/InputField (TMP)")?.GetComponent<TMPro.TMP_InputField>() ?? null!;
 			}
 			return _valueText;
 		}

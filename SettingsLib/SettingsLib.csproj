@@ -38,7 +38,19 @@
 
 	<ItemGroup>
 		<Compile Include="..\Informer\*.cs"><Link>Informer\%(Filename)%(Extension)</Link></Compile>
-		<Reference Include="$(HasteDir)\..\..\workshop\content\1796470\3408901301\0Harmony.dll" Private="false" />
 		<Reference Include="$(HasteDir)\Haste_Data\Managed\*.dll" Private="false" Publicize="true" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="HastyPatch.cs" />
+	</ItemGroup>
+
+	<!-- Just builds directly into the 0Harmony path for quicker testing -->
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+
+		<!-- idk why vs wants to fuck the text but it looks like this normally;
+        xcopy "$(TargetDir)$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\workshop\content\1796470\3408901301" /Y -->
+		<Exec Command="xcopy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;C:\Program Files (x86)\Steam\steamapps\workshop\content\1796470\3408901301&quot; /Y&#xD;&#xA;" />
+
+	</Target>
 </Project>
